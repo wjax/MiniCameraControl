@@ -1,4 +1,4 @@
-﻿using MiniViscaControl.Model.Visca;
+﻿using MiniCameraControl.Model.Visca;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -72,11 +72,13 @@ namespace MiniCameraControl.Controllers.Visca
                 case AbsoluteZoomRES zM:
                     System.Diagnostics.Debug.WriteLine($"Encoder: {zM.EncoderValue}");
                     var zoomValue = GetZoomFromEncoder(zM.EncoderValue);
+                    _liveParameters[ViscaParameters.AbsoluteZoom] = zoomValue;
                     if (zoomValue >= 0)
                         CameraParameterChangedEvent?.Invoke(ID, ViscaParameters.AbsoluteZoom, zoomValue);
                     break;
                 case AddressRES zAdr:
                     System.Diagnostics.Debug.WriteLine($"Address: {zAdr.Address}");
+                    _liveParameters[ViscaParameters.Address] = (double)zAdr.Address;
                     CameraParameterChangedEvent?.Invoke(ID, ViscaParameters.Address, (double)zAdr.Address);
                     CameraConnectedEvent?.Invoke(ID, true);
                     break;
@@ -92,13 +94,24 @@ namespace MiniCameraControl.Controllers.Visca
 
         private double GetZoomFromEncoder(short encoder)
         {
+            double floor = 0;
+            double ceiling = 0;
             foreach (KeyValuePair<double, short> kv in _zoomLevels)
             {
                 if (kv.Value == encoder)
                     return kv.Key;
+
+                if (kv.Value < encoder)
+                    floor = kv.Key;
+
+                if (kv.Value > encoder && ceiling == 0)
+                    ceiling = kv.Key;
             }
 
-            return -1;
+            // Find fraction
+            var zoomFraction = floor + ( (double)(encoder - _zoomLevels[floor]) / (double)(_zoomLevels[ceiling] - _zoomLevels[floor]));
+
+            return zoomFraction;
         }
 
         public abstract ValueTask<bool> SetParameter(string parameter, double value);
@@ -139,6 +152,8 @@ namespace MiniCameraControl.Controllers.Visca
         private void PopulateAvailableParameters()
         {
             _liveParameters.Add(ViscaParameters.AbsoluteZoom, 0);
+            _liveParameters.Add(ViscaParameters.RelativeSpeedZoom, 0);
+            _liveParameters.Add(ViscaParameters.Address, 0);
         }
 
         protected void AddZoom(double zoom, short encoder) => _zoomLevels.Add(zoom, encoder);

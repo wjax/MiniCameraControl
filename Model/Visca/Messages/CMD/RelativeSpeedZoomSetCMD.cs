@@ -1,22 +1,21 @@
-﻿using MiniCameraControl.Model.Visca;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using Tools.Base;
 
 namespace MiniCameraControl.Model.Visca.Messages
 {
-    public class AbsoluteZoomSetCMD : BaseMessage
+    public class RelativeSpeedZoomSetCMD : BaseMessage
     {
         #region pool
-        private static Pool<AbsoluteZoomSetCMD> pool = new Pool<AbsoluteZoomSetCMD>(10,
-                   () => new AbsoluteZoomSetCMD { },
+        private static Pool<RelativeSpeedZoomSetCMD> pool = new Pool<RelativeSpeedZoomSetCMD>(2,
+                   () => new RelativeSpeedZoomSetCMD { },
                    (m) => m.Reset());
 
-        public static AbsoluteZoomSetCMD RentFromPool()
+        public static RelativeSpeedZoomSetCMD RentFromPool()
         {
             // try to get from the pool; only allocate new obj if necessary
-            return pool.Pop() ?? new AbsoluteZoomSetCMD();
+            return pool.Pop() ?? new RelativeSpeedZoomSetCMD();
         }
 
         public void ReturnToPool()
@@ -25,12 +24,12 @@ namespace MiniCameraControl.Model.Visca.Messages
         }
         #endregion
 
-        private byte[] _buffer = new byte[9];
-        public short EncoderValue { get; set; }
+        private byte[] _buffer = new byte[6];
+        public short DirectionSpeed { get; set; }
 
         public void Reset()
         {
-            EncoderValue = 0;
+            DirectionSpeed = 0;
         }
 
         public override void Dispose()
@@ -46,12 +45,14 @@ namespace MiniCameraControl.Model.Visca.Messages
             _buffer[0] |= (byte)cameraIndex;
             _buffer[1] = ViscaCodes.COMMAND;
             _buffer[2] = ViscaCodes.CATEGORY_CAMERA1;
-            _buffer[3] = ViscaCodes.ZOOM_VALUE;
-            _buffer[4] = (byte)((EncoderValue & 0xF000) >> 12);
-            _buffer[5] = (byte)((EncoderValue & 0x0F00) >> 8);
-            _buffer[6] = (byte)((EncoderValue & 0x00F0) >> 4);
-            _buffer[7] = (byte)(EncoderValue & 0x000F);
-            _buffer[8] = ViscaCodes.TERMINATOR;
+            _buffer[3] = ViscaCodes.ZOOM;
+            if (DirectionSpeed == 0)
+                _buffer[4] = 0;
+            else
+                _buffer[4] = DirectionSpeed > 0 ? (byte)0x30 : (byte)0x20;
+
+            _buffer[4] |= (byte)(Math.Abs(DirectionSpeed) & 0x0F);
+            _buffer[5] = ViscaCodes.TERMINATOR;
 
             return _buffer;
         }

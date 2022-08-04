@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0</TargetFrameworks>
     <Authors>Jesus ALvarez</Authors>
     <Company>29QBits</Company>
     <Description>A minimal camera control library. Visca only for the moment and only zoom</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommsLIB" Version="2.5.1" />
-    <PackageReference Include="Tools" Version="1.3.1" />
+    <PackageReference Include="CommsLIB" Version="2.7.2" />
+    <PackageReference Include="Tools" Version="1.3.2" />
   </ItemGroup>
 
 </Project>

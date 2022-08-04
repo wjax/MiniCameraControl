@@ -8,6 +8,10 @@ namespace MiniCameraControl.Controllers.Visca
 {
     public class ViscaFCB7250AController : ViscaController
     {
+        private const int MAX_RELATIVE_ZOOM_SPEED = 7;
+        private const int MIN_RELATIVE_ZOOM_SPEED = 2;
+        private const int ZERO_RELATIVE_ZOOM_SPEED = 0;
+
         public ViscaFCB7250AController() : base()
         {
             AddZoom(1.0, (short)0x0000);
@@ -54,6 +58,10 @@ namespace MiniCameraControl.Controllers.Visca
                     if (_zoomLevels.ContainsKey(value))
                         return true;
                     break;
+                case ViscaParameters.RelativeSpeedZoom:
+                    if (value == 0 || (Math.Abs(value) >= MIN_RELATIVE_ZOOM_SPEED && Math.Abs(value) <= MAX_RELATIVE_ZOOM_SPEED))
+                        return true;
+                    break;
             }
 
             return false;
@@ -66,7 +74,10 @@ namespace MiniCameraControl.Controllers.Visca
                 switch (parameter)
                 {
                     case ViscaParameters.AbsoluteZoom:
-                        SetZoom(value);
+                        SetAbsoluteZoom(value);
+                        return true;
+                    case ViscaParameters.RelativeSpeedZoom:
+                        SetRelativeSpeedZoom(value);
                         return true;
                 }
             }
@@ -74,7 +85,15 @@ namespace MiniCameraControl.Controllers.Visca
             return false;
         }
 
-        private void SetZoom(double value)
+        private void SetRelativeSpeedZoom(double value)
+        {
+            var cmd = RelativeSpeedZoomSetCMD.RentFromPool();
+            cmd.DirectionSpeed = (short)value;
+
+            SendMessage(cmd);
+        }
+
+        private void SetAbsoluteZoom(double value)
         {
             var cmd = AbsoluteZoomSetCMD.RentFromPool();
             cmd.EncoderValue = _zoomLevels[value];

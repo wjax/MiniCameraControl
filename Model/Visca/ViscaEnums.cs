@@ -1,4 +1,4 @@
-﻿namespace MiniViscaControl.Model.Visca
+﻿namespace MiniCameraControl.Model.Visca
 {
     public enum ZOOM_DIRECTION
     {

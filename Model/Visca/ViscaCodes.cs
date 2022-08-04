@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MiniViscaControl.Model.Visca
+namespace MiniCameraControl.Model.Visca
 {
     public static class ViscaCodes
     {

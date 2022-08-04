@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommsLIB.Communications.FrameWrappers;
 using MiniCameraControl.Model.Visca.Messages;
-using MiniViscaControl.Model.Visca;
+using MiniCameraControl.Model.Visca;
 
 namespace MiniCameraControl.FrameWrapper.Visca
 {
